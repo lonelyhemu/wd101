@@ -1,57 +1,93 @@
-<script>
-  const form = document.getElementById("registrationForm");
-  const tableBody = document.querySelector("#userTable tbody");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registration Form</title>
+</head>
+<body>
 
-  // Load entries from localStorage on page load
-  window.onload = () => {
-    const storedEntries = localStorage.getItem("userEntries");
-    const entries = storedEntries ? JSON.parse(storedEntries) : [];
-    entries.forEach(addRow);
-  };
+  <h1>Registration Form</h1>
+  <form id="registrationForm">
+    <input type="text" id="name" placeholder="Name" required />
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <input type="date" id="dob" required />
+    <label>
+      <input type="checkbox" id="acceptTerms" />
+      I accept the terms
+    </label>
+    <button type="submit">Submit</button>
+  </form>
 
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
+  <table id="userTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Password</th>
+        <th>Dob</th>
+        <th>Accepted terms?</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-    const entry = {
-      name: document.getElementById("name").value,
-      email: document.getElementById("email").value,
-      password: document.getElementById("password").value,
-      dob: document.getElementById("dob").value,
-      acceptedTerms: document.getElementById("acceptTerms").checked
+  <!-- 🟡 Move the script here -->
+  <script>
+    const form = document.getElementById("registrationForm");
+    const tableBody = document.querySelector("#userTable tbody");
+
+    // Load entries on page load
+    window.onload = () => {
+      const storedEntries = localStorage.getItem("userEntries");
+      const entries = storedEntries ? JSON.parse(storedEntries) : [];
+      entries.forEach(addRow);
     };
 
-    // Age validation
-    const dobDate = new Date(entry.dob);
-    const today = new Date();
-    let age = today.getFullYear() - dobDate.getFullYear();
-    const m = today.getMonth() - dobDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < dobDate.getDate())) {
-      age--;
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const entry = {
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        password: document.getElementById("password").value,
+        dob: document.getElementById("dob").value,
+        acceptedTerms: document.getElementById("acceptTerms").checked
+      };
+
+      // Age validation
+      const dobDate = new Date(entry.dob);
+      const today = new Date();
+      let age = today.getFullYear() - dobDate.getFullYear();
+      const m = today.getMonth() - dobDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < dobDate.getDate())) {
+        age--;
+      }
+      if (age < 18 || age > 55) {
+        alert("Age must be between 18 and 55.");
+        return;
+      }
+
+      const storedEntries = localStorage.getItem("userEntries");
+      const entries = storedEntries ? JSON.parse(storedEntries) : [];
+      entries.push(entry);
+      localStorage.setItem("userEntries", JSON.stringify(entries));
+      addRow(entry);
+      form.reset();
+    });
+
+    function addRow(entry) {
+      const row = tableBody.insertRow();
+      row.innerHTML = `
+        <td>${entry.name}</td>
+        <td>${entry.email}</td>
+        <td>${entry.password}</td>
+        <td>${entry.dob}</td>
+        <td>${entry.acceptedTerms}</td>
+      `;
     }
-    if (age < 18 || age > 55) {
-      alert("Age must be between 18 and 55.");
-      return;
-    }
+  </script>
 
-    // Save to localStorage
-    const storedEntries = localStorage.getItem("userEntries");
-    const entries = storedEntries ? JSON.parse(storedEntries) : [];
-    entries.push(entry);
-    localStorage.setItem("userEntries", JSON.stringify(entries));
-
-    addRow(entry);
-    form.reset();
-  });
-
-  // Add row to the table
-  function addRow(entry) {
-    const row = tableBody.insertRow();
-    row.innerHTML = `
-      <td>${entry.name}</td>
-      <td>${entry.email}</td>
-      <td>${entry.password}</td>
-      <td>${entry.dob}</td>
-      <td>${entry.acceptedTerms}</td>
-    `;
-  }
-</script>
+</body>
+</html>
